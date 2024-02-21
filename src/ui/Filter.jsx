@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+import { useSearchParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 const StyledFilter = styled.div`
@@ -15,7 +17,8 @@ const FilterButton = styled.button`
   border: none;
 
   ${(props) =>
-    props.active &&
+    //Changed from props.active
+    props.active === "true" &&
     css`
       background-color: var(--color-brand-600);
       color: var(--color-brand-50);
@@ -33,3 +36,31 @@ const FilterButton = styled.button`
     color: var(--color-brand-50);
   }
 `;
+function Filter({ filterField, filterOptions }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentOption =
+    searchParams.get(filterField) || filterOptions.at(0).value;
+  function handleClick(value) {
+    searchParams.set(filterField, value);
+    if (searchParams.get("page")) searchParams.set("page", 1);
+
+    setSearchParams(searchParams);
+  }
+  return (
+    <StyledFilter>
+      {filterOptions.map((filter) => (
+        <FilterButton
+          onClick={() => handleClick(filter.value)}
+          key={filter.value}
+          active={(currentOption === filter.value).toString()}
+          disabled={currentOption === filter.value}
+          //active={currentOption === filter.value} use string value instead of this
+        >
+          {filter.label}
+        </FilterButton>
+      ))}
+    </StyledFilter>
+  );
+}
+
+export default Filter;
